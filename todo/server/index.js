@@ -1,7 +1,8 @@
 import express from 'express'
 import cors from 'cors'
 import 'dotenv/config'
-import todoRouter from './routers/todoRouter.js'
+import todoRouter from './routes/todoRouter.js'
+import userRouter from './routes/userRouter.js'
 
 const port = process.env.PORT || 3001
 
@@ -12,6 +13,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
 app.use('/tasks', todoRouter)
+app.use('/users', userRouter)
 
 app.use((err, req, res, next) => {
   const statusCode = err.status || 500
