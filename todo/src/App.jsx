@@ -1,48 +1,99 @@
 import './App.css'
-import { useState, useEffect } from 'react'
+
+import {
+  useEffect,
+  useState
+} from 'react'
+
 import axios from 'axios'
+
 import Row from './components/Row'
 
-const apiUrl = 'http://localhost:3001'
+import { useUser } from './context/useUser'
+
+const apiUrl = import.meta.env.VITE_API_URL
 
 function App() {
   const [task, setTask] = useState('')
   const [tasks, setTasks] = useState([])
 
+  const { user } = useUser()
+
   useEffect(() => {
-    axios.get(`${apiUrl}/tasks`)
+    axios
+      .get(`${apiUrl}/tasks`)
       .then(response => {
         setTasks(response.data)
       })
       .catch(error => {
-        alert(error.response?.data?.message || error.message)
+        alert(
+          error.response?.data?.error?.message
+            || error.message
+        )
       })
   }, [])
 
   const addTask = (e) => {
     e.preventDefault()
 
-    const newTask = { description: task }
+    const headers = {
+      headers: {
+        Authorization: `Bearer ${user.token}`
+      }
+    }
 
-    axios.post(`${apiUrl}/tasks`, { task: newTask })
+    const newTask = {
+      description: task
+    }
+
+    axios
+      .post(
+        `${apiUrl}/tasks`,
+        {
+          task: newTask
+        },
+        headers
+      )
       .then(response => {
-        setTasks(currentTasks => [...currentTasks, response.data])
+        setTasks(currentTasks => [
+          ...currentTasks,
+          response.data
+        ])
+
         setTask('')
       })
       .catch(error => {
-        alert(error.response?.data?.error || error.message)
+        alert(
+          error.response?.data?.error?.message
+            || error.message
+        )
       })
   }
 
   const deleteTask = (deleted) => {
-    axios.delete(`${apiUrl}/tasks/${deleted}`)
+    const headers = {
+      headers: {
+        Authorization: `Bearer ${user.token}`
+      }
+    }
+
+    axios
+      .delete(
+        `${apiUrl}/tasks/${deleted}`,
+        headers
+      )
       .then(() => {
         setTasks(currentTasks =>
-          currentTasks.filter(item => item.id != deleted)
+          currentTasks.filter(
+            item => item.id != deleted
+          )
         )
       })
       .catch(error => {
-        alert(error.response?.data?.error || error.message)
+        alert(
+          error.response?.data?.error?.message
+            || error.message
+        )
       })
   }
 
@@ -54,7 +105,9 @@ function App() {
         <input
           placeholder="Add new task"
           value={task}
-          onChange={event => setTask(event.target.value)}
+          onChange={event =>
+            setTask(event.target.value)
+          }
         />
       </form>
 
